@@ -25,16 +25,22 @@ export async function action({ request }: Route.ActionArgs) {
 
     console.log(`📅 Form: "${submittedValue}" (timezone: ${timezone})`);
 
-    // The key fix: handle JavaScript disabled scenario
+    // Handle different timezone scenarios
     let dateObject: Date;
     if (!timezone || timezone === 'Unknown (JavaScript required)') {
-        // JS disabled: treat as UTC
+        // JS disabled with no manual selection: treat as UTC
         dateObject = new Date(submittedValue + 'Z');
-        console.log(`⚠️  JS OFF → UTC: ${dateObject.toISOString()}`);
+        console.log(`⚠️  JS OFF (no selection) → UTC: ${dateObject.toISOString()}`);
+    } else if (timezone === 'UTC') {
+        // User manually selected UTC or JS detected UTC
+        dateObject = new Date(submittedValue + 'Z');
+        console.log(`🌍 Manual/Detected UTC → UTC: ${dateObject.toISOString()}`);
     } else {
-        // JS enabled: treat as local time
+        // JS enabled with timezone detection, or manual timezone selection
         dateObject = new Date(submittedValue);
-        console.log(`✅ JS ON → Local: ${dateObject.toISOString()}`);
+        const timezoneStr = timezone.toString();
+        const detectionMethod = timezoneStr.includes('/') ? 'Manual selection' : 'JS detection';
+        console.log(`✅ ${detectionMethod} (${timezoneStr}) → Local: ${dateObject.toISOString()}`);
     }
 
     return null;
@@ -87,8 +93,8 @@ export default function DemoSimple({ loaderData }: Route.ComponentProps) {
                     <div className="bg-orange-100 dark:bg-orange-900/20 p-4 rounded">
                         <h3 className="font-medium text-orange-800 dark:text-orange-200 mb-2">⚠️ JavaScript Disabled</h3>
                         <p className="text-sm text-orange-700 dark:text-orange-300">
-                            No timezone info available.
-                            Server assumes the input is UTC time.
+                            Shows timezone selector for manual selection.
+                            Server uses selected timezone or assumes UTC if none selected.
                         </p>
                     </div>
                 </div>
@@ -151,7 +157,71 @@ export default function DemoSimple({ loaderData }: Route.ComponentProps) {
                         </p>
                     </div>
 
-                    {/* Hidden timezone field */}
+                    {/* Timezone selector when JavaScript is disabled */}
+                    <noscript>
+                        <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded p-4">
+                            <label htmlFor="timezone-select" className="block text-sm font-medium text-orange-800 dark:text-orange-200 mb-2">
+                                🌍 Your Timezone (JavaScript disabled):
+                            </label>
+                            <select
+                                name="timezone"
+                                id="timezone-select"
+                                className="w-full p-2 border border-orange-300 dark:border-orange-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                defaultValue="UTC"
+                            >
+                                <option value="UTC">UTC (Coordinated Universal Time)</option>
+                                <optgroup label="Americas">
+                                    <option value="America/New_York">Eastern Time (New York)</option>
+                                    <option value="America/Chicago">Central Time (Chicago)</option>
+                                    <option value="America/Denver">Mountain Time (Denver)</option>
+                                    <option value="America/Los_Angeles">Pacific Time (Los Angeles)</option>
+                                    <option value="America/Toronto">Eastern Time (Toronto)</option>
+                                    <option value="America/Vancouver">Pacific Time (Vancouver)</option>
+                                    <option value="America/Mexico_City">Central Time (Mexico City)</option>
+                                    <option value="America/Sao_Paulo">Brasília Time (São Paulo)</option>
+                                </optgroup>
+                                <optgroup label="Europe">
+                                    <option value="Europe/London">Greenwich Mean Time (London)</option>
+                                    <option value="Europe/Berlin">Central European Time (Berlin)</option>
+                                    <option value="Europe/Paris">Central European Time (Paris)</option>
+                                    <option value="Europe/Rome">Central European Time (Rome)</option>
+                                    <option value="Europe/Madrid">Central European Time (Madrid)</option>
+                                    <option value="Europe/Amsterdam">Central European Time (Amsterdam)</option>
+                                    <option value="Europe/Stockholm">Central European Time (Stockholm)</option>
+                                    <option value="Europe/Oslo">Central European Time (Oslo)</option>
+                                    <option value="Europe/Helsinki">Eastern European Time (Helsinki)</option>
+                                    <option value="Europe/Moscow">Moscow Time</option>
+                                </optgroup>
+                                <optgroup label="Asia">
+                                    <option value="Asia/Tokyo">Japan Standard Time (Tokyo)</option>
+                                    <option value="Asia/Shanghai">China Standard Time (Shanghai)</option>
+                                    <option value="Asia/Hong_Kong">Hong Kong Time</option>
+                                    <option value="Asia/Singapore">Singapore Time</option>
+                                    <option value="Asia/Seoul">Korea Standard Time (Seoul)</option>
+                                    <option value="Asia/Mumbai">India Standard Time (Mumbai)</option>
+                                    <option value="Asia/Dubai">Gulf Standard Time (Dubai)</option>
+                                    <option value="Asia/Bangkok">Indochina Time (Bangkok)</option>
+                                </optgroup>
+                                <optgroup label="Australia & Pacific">
+                                    <option value="Australia/Sydney">Australian Eastern Time (Sydney)</option>
+                                    <option value="Australia/Melbourne">Australian Eastern Time (Melbourne)</option>
+                                    <option value="Australia/Perth">Australian Western Time (Perth)</option>
+                                    <option value="Pacific/Auckland">New Zealand Time (Auckland)</option>
+                                </optgroup>
+                                <optgroup label="Africa">
+                                    <option value="Africa/Cairo">Eastern European Time (Cairo)</option>
+                                    <option value="Africa/Johannesburg">South Africa Time</option>
+                                    <option value="Africa/Lagos">West Africa Time (Lagos)</option>
+                                </optgroup>
+                            </select>
+                            <p className="text-xs text-orange-700 dark:text-orange-300 mt-2">
+                                Since JavaScript is disabled, please manually select your timezone.
+                                The server will use this to interpret your datetime input correctly.
+                            </p>
+                        </div>
+                    </noscript>
+
+                    {/* Hidden timezone field (only used when JavaScript is enabled) */}
                     <input
                         type="hidden"
                         name="timezone"
@@ -180,14 +250,14 @@ export default function DemoSimple({ loaderData }: Route.ComponentProps) {
                     <div>
                         <strong className="text-yellow-800 dark:text-yellow-200">JavaScript Enabled (current):</strong>
                         <p className="text-yellow-700 dark:text-yellow-300">
-                            Submit the form and check console. Should see "✅ JS ON → Local: ..."
+                            Submit the form and check console. Should see "✅ JS detection → Local: ..."
                         </p>
                     </div>
                     <div>
                         <strong className="text-yellow-800 dark:text-yellow-200">JavaScript Disabled test:</strong>
                         <p className="text-yellow-700 dark:text-yellow-300">
-                            Disable JavaScript in browser settings, refresh page, submit form.
-                            Should see "⚠️ JS OFF → UTC: ..." in console.
+                            Disable JavaScript in browser settings, refresh page. You'll see a timezone selector.
+                            Select your timezone and submit. Should see "✅ Manual selection → Local: ..." in console.
                         </p>
                     </div>
                 </div>
@@ -204,9 +274,10 @@ export default function DemoSimple({ loaderData }: Route.ComponentProps) {
                         <div className="bg-white dark:bg-gray-800 p-4 rounded border">
                             <div className="space-y-2 text-sm">
                                 <div><strong>1. Detect timezone with JavaScript:</strong> <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">Intl.DateTimeFormat().resolvedOptions().timeZone</code></div>
-                                <div><strong>2. Send timezone as hidden field:</strong> Include timezone info with form submission</div>
-                                <div><strong>3. Server handles both cases:</strong> JS enabled (use timezone) vs JS disabled (assume UTC)</div>
-                                <div><strong>4. Hydration-safe rendering:</strong> Use useState + useEffect to avoid SSR mismatches</div>
+                                <div><strong>2. Fallback timezone selector:</strong> Show manual selection when JavaScript disabled using <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">&lt;noscript&gt;</code></div>
+                                <div><strong>3. Send timezone with form:</strong> Hidden field (JS) or visible selector (no JS)</div>
+                                <div><strong>4. Server handles all cases:</strong> JS detection, manual selection, or UTC fallback</div>
+                                <div><strong>5. Hydration-safe rendering:</strong> Use useState + useEffect to avoid SSR mismatches</div>
                             </div>
                         </div>
                     </div>
