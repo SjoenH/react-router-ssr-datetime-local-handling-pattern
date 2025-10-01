@@ -339,7 +339,204 @@ This project demonstrates best practices for datetime-local timezone handling. C
 
 MIT License - feel free to use this code in your projects!
 
-## 🔗 Related Resources
+## � npm Package Roadmap
+
+### Market Analysis
+
+Based on extensive npm ecosystem research (October 2025), **no existing packages solve the `datetime-local` timezone interpretation problem with progressive enhancement**. This represents a significant opportunity.
+
+**Existing packages** are either:
+
+- General timezone libraries (`moment-timezone`, `@js-joda/timezone`) - no datetime-local focus
+- Basic React components (`react-timezone-select`) - no progressive enhancement
+- Incomplete solutions (`datetime-local-polyfill`) - no timezone handling
+
+**Our unique value proposition**:
+
+- ✅ Framework-agnostic core utilities
+- ✅ Progressive enhancement (works without JavaScript)
+- ✅ Production-ready TypeScript implementation
+- ✅ Comprehensive timezone support
+- ✅ Hydration-safe React components
+
+### Package Structure Plan
+
+#### 1. `@datetime-local/core` (Priority #1)
+
+**Zero dependencies, framework-agnostic utilities**
+
+```typescript
+// Most valuable package - solves universal problem
+export {
+  detectUserTimezone,           // Safe timezone detection
+  parseDatetimeWithTimezone,    // Core parsing logic
+  utcToLocalInputFormat,        // UTC to local conversion
+  formatTimezoneDisplay,        // User-friendly display
+  TIMEZONE_OPTIONS,             // 35+ supported timezones
+  type TimezoneResult,          // TypeScript types
+  type TimezoneParseMethod
+} from './timezone';
+```
+
+**Target audience**: All web frameworks using datetime-local
+**Installation**: `npm install @datetime-local/core`
+
+#### 2. `@datetime-local/react` (Priority #2)
+
+**React-specific components and hooks**
+
+```typescript
+// React ecosystem integration
+export {
+  // Components
+  TimezoneSelect,               // Progressive timezone selector
+  DatetimeForm,                 // Complete form component
+  TimezoneStatus,               // Timezone display component
+  
+  // Hooks
+  useTimezoneDetection,         // Hydration-safe detection
+  
+  // Types
+  type TimezoneDetectionResult,
+  type DatetimeFormProps
+} from './index';
+```
+
+**Dependencies**: `react`, `@datetime-local/core`
+**Target audience**: React developers
+**Installation**: `npm install @datetime-local/react`
+
+#### 3. `@datetime-local/server` (Priority #3)
+
+**Server-side utilities and patterns**
+
+```typescript
+// Server framework helpers
+export {
+  // React Router
+  createTimezoneAction,         // Standard action handler
+  createTimezoneLoader,         // SSR-safe loader
+  
+  // Next.js
+  handleTimezoneSubmission,     // API route helper
+  
+  // Express/Fastify
+  timezoneMiddleware,           // Request parsing middleware
+  
+  // Validation
+  validateTimezoneSubmission,   // Input validation
+  sanitizeTimezoneInput        // Security helpers
+} from './index';
+```
+
+**Dependencies**: `@datetime-local/core`
+**Target audience**: Full-stack developers
+**Installation**: `npm install @datetime-local/server`
+
+### Implementation Timeline
+
+#### Phase 1: Core Package (Weeks 1-2)
+
+- [ ] Extract utilities from `app/utils/timezone.ts`
+- [ ] Create comprehensive test suite
+- [ ] Add JSDoc documentation
+- [ ] Set up TypeScript build process
+- [ ] Create minimal README with examples
+- [ ] Publish `@datetime-local/core@1.0.0`
+
+#### Phase 2: React Package (Weeks 3-4)
+
+- [ ] Extract components from `app/components/`
+- [ ] Extract hooks from `app/hooks/`
+- [ ] Create Storybook documentation
+- [ ] Add React testing library tests
+- [ ] Ensure SSR compatibility
+- [ ] Publish `@datetime-local/react@1.0.0`
+
+#### Phase 3: Server Package (Weeks 5-6)
+
+- [ ] Create framework-specific helpers
+- [ ] Add validation and security utilities
+- [ ] Write integration examples
+- [ ] Test with multiple frameworks
+- [ ] Publish `@datetime-local/server@1.0.0`
+
+#### Phase 4: Documentation & Marketing (Weeks 7-8)
+
+- [ ] Create comprehensive documentation site
+- [ ] Write blog posts about the problem/solution
+- [ ] Submit to awesome lists and newsletters
+- [ ] Engage with React/web dev communities
+- [ ] Gather feedback and iterate
+
+### Package Configuration
+
+#### Monorepo Structure
+
+```
+packages/
+├── core/                     # @datetime-local/core
+│   ├── src/
+│   │   ├── timezone.ts      # Main utilities
+│   │   ├── types.ts         # TypeScript definitions
+│   │   └── index.ts         # Public API
+│   ├── tests/               # Jest tests
+│   ├── package.json
+│   └── README.md
+├── react/                   # @datetime-local/react
+│   ├── src/
+│   │   ├── components/      # React components
+│   │   ├── hooks/           # React hooks
+│   │   └── index.ts
+│   ├── stories/             # Storybook
+│   ├── tests/
+│   └── package.json
+└── server/                  # @datetime-local/server
+    ├── src/
+    │   ├── react-router/    # React Router helpers
+    │   ├── nextjs/          # Next.js helpers
+    │   ├── express/         # Express helpers
+    │   └── index.ts
+    └── package.json
+```
+
+#### Build Configuration
+
+- **TypeScript**: ES2020 target, strict mode
+- **Build tool**: Rollup for multiple formats (ESM, CJS, UMD)
+- **Testing**: Jest + React Testing Library
+- **Documentation**: TypeDoc + custom examples
+- **CI/CD**: GitHub Actions for automated testing/publishing
+
+### Success Metrics
+
+#### Technical Goals
+
+- [ ] 95%+ test coverage across all packages
+- [ ] Tree-shakeable builds (ESM support)
+- [ ] TypeScript-first development
+- [ ] Zero runtime dependencies for core package
+- [ ] SSR compatibility for React package
+
+#### Adoption Goals
+
+- [ ] 1,000+ weekly downloads within 6 months
+- [ ] Documentation site with 5+ framework examples
+- [ ] Community contributions and feedback
+- [ ] Recognition in React/timezone development communities
+
+### Migration Path
+
+For this demo project:
+
+1. **Phase 1**: Refactor to use `@datetime-local/core`
+2. **Phase 2**: Update to use `@datetime-local/react`
+3. **Phase 3**: Add server utilities from `@datetime-local/server`
+4. **Documentation**: Update README with package examples
+
+This creates a feedback loop where our demo becomes a real-world test case for the packages.
+
+## �🔗 Related Resources
 
 - [MDN datetime-local documentation](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/datetime-local)
 - [IANA Time Zone Database](https://www.iana.org/time-zones)
