@@ -1,13 +1,9 @@
 
-// 1. LOADER: Runs on the "server" or before// It receives the form data and processes it.
-export async function action({ request }: Route.ActionArgs) {
-    // TODO: Fix UTC parsing bug when JavaScript is disabled
-    // When timezone is 'Unknown (JavaScript required)', append 'Z' to treat input as UTC
-    console.log("\n📤 Action: Receiving form submission...");e page loads.
+// 1. LOADER: Runs on the "server" or before the page loads.
 // SUMMARY: Always work with UTC dates from the server/database.
 // Send UTC ISO strings to the client for consistency.
 
-import { Form, useLoaderData } from "react-router";
+import { Form } from "react-router";
 import type { Route } from "./+types/demo";
 import { useEffect, useState } from "react";
 
@@ -80,6 +76,8 @@ export async function action({ request }: Route.ActionArgs) {
 // Capture user's timezone to send back with the form submission.
 
 export default function EventPage({ loaderData }: Route.ComponentProps) {
+    // TODO: Fix UTC parsing when JavaScript is disabled - append 'Z' to treat as UTC
+
     // Get the data provided by the loader.
     const { eventDate, requestInfo } = loaderData;
 
