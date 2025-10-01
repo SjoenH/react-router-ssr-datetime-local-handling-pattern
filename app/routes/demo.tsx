@@ -1,4 +1,3 @@
-
 // 1. LOADER: Runs on the "server" or before the page loads.
 // SUMMARY: Always work with UTC dates from the server/database.
 // Send UTC ISO strings to the client for consistency.
@@ -58,9 +57,17 @@ export async function action({ request }: Route.ActionArgs) {
     console.log(`� Action: Received a timezone-less string from form: ${submittedValue}`);
     console.log(`� Action: User's timezone: ${timezone}`);
 
-    // When you create a new Date from this string, JavaScript in the server/browser
-    // environment will interpret it based on its own local timezone.
-    const dateObject = new Date(submittedValue);
+    // Fix UTC parsing bug when JavaScript is disabled
+    let dateObject: Date;
+    if (!timezone || timezone === 'Unknown (JavaScript required)') {
+        // JavaScript disabled: treat input as UTC by appending 'Z'
+        dateObject = new Date(submittedValue + 'Z');
+        console.log(`📤 Action: JS disabled - treating "${submittedValue}" as UTC`);
+    } else {
+        // JavaScript enabled: input is local time from user's timezone
+        dateObject = new Date(submittedValue);
+        console.log(`📤 Action: JS enabled - treating "${submittedValue}" as local time from ${timezone}`);
+    }
 
     console.log(`� Action: Converted to a Date object:`, dateObject);
     console.log(`...and its UTC string is: ${dateObject.toISOString()}`);
@@ -84,7 +91,7 @@ export default function EventPage({ loaderData }: Route.ComponentProps) {
     // State for client-side values to avoid hydration mismatch
     // Use server-side fallbacks to reduce flicker
     const [localTimeString, setLocalTimeString] = useState<string>(new Date(eventDate).toLocaleString());
-    const [userTimezone, setUserTimezone] = useState<string>('UTC (server-side)');
+    const [userTimezone, setUserTimezone] = useState<string>('Unknown (JavaScript required)');
     const [formattedForInput, setFormattedForInput] = useState<string>(eventDate.slice(0, 16)); // Start with UTC format
 
     // Calculate client-side values after hydration to get accurate timezone info
